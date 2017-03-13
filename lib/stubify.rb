@@ -16,7 +16,8 @@ module Stubify
       command :server do |c|
         c.syntax = 'server'
         c.description = ''
-        c.option '--directory STRING', String, 'Path where fixtures will be stored'
+        c.option '--directory STRING', String, 'Path where fixtures will be stored. i.e. fixtures/'
+        c.option '--host STRING', String, 'Host the requests will be redirected to. i.e. https://easy-peasy.io'
         c.action do |args, options|
           Stubify.options = options
           require 'stubify/server'

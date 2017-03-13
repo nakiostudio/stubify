@@ -60,7 +60,7 @@ module Stubify
 
     def self.forward(request, method, body)
       # Build url
-      uri = URI('https://api.lyst.com')
+      uri = URI(Stubify.options.host)
       uri.path = request.path
       uri.query = request.query_string
 
