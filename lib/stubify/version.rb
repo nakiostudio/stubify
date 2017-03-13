@@ -1,6 +1,6 @@
 module Stubify
 
     VERSION = "0.1.0"
-    DESCRIPTION = ""
+    DESCRIPTION = "The program description"
 
 end

@@ -1,27 +1,29 @@
 require 'commander'
+require 'stubify/version'
 
 module Stubify
   class << self
 
     include Commander::Methods
 
-    def run
-      program :name, 'Foo Bar'
-      program :version, '1.0.0'
-      program :description, 'Stupid command that prints foo or bar.'
+    attr_accessor :options
 
-      command :foo do |c|
-        c.syntax = 'foobar foo'
-        c.description = 'Displays foo'
+    def run
+      program :name, 'stubify'
+      program :version, Stubify::VERSION
+      program :description, Stubify::DESCRIPTION
+
+      command :server do |c|
+        c.syntax = 'server'
+        c.description = ''
+        c.option '--directory STRING', String, 'Path where fixtures will be stored'
         c.action do |args, options|
-          puts 'foo'
+          Stubify.options = options
+          require 'stubify/server'
         end
       end
-
       run!
     end
-
-    Stubify.new.run if $0 == __FILE__
 
   end
 end

@@ -15,8 +15,9 @@ Gem::Specification.new do |spec|
   spec.license       = "MIT"
 
   # Paths
-  spec.files = Dir["lib/**/*"] + %w(README.md LICENSE)
-  spec.require_paths = ["lib"]
+  spec.files          = Dir["lib/**/*"] + %w(bin/stubify README.md LICENSE)
+  spec.executables    = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  spec.require_paths  = ["lib"]
 
   # Ruby
   spec.required_ruby_version = ">= 2.0.0"
