@@ -36,7 +36,7 @@ This is a summary of the ideas which implementation is pending:
 ## Installation
 
 ```
-sudo gem install xcov
+sudo gem install stubify
 ```
 
 ## Usage
