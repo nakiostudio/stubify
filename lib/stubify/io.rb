@@ -9,7 +9,6 @@ module Stubify
 
     def self.write_on_disk(request, body, response)
       path = IO.path_from_request(request)
-      FileUtils.mkdir_p(path)
       file_name = IO.file_name_from_request(request, body)
 
       data = {
@@ -18,6 +17,10 @@ module Stubify
         'body': response.body.to_s
       }
 
+      # Do not persist if path is whitelisted
+      return data if Stubify.options.whitelisted.include?(request.path)
+
+      FileUtils.mkdir_p(path)
       File.open(File.join(path, file_name), "wb") do |file|
         file.puts(data.to_json)
       end
@@ -33,6 +36,10 @@ module Stubify
     end
 
     def self.cached?(request, body)
+      # Do not load cache if path is whitelisted
+      return false if Stubify.options.whitelisted.include?(request.path)
+
+      # Otherwise check there is a cached payload
       path = IO.path_from_request(request)
       file_name = IO.file_name_from_request(request, body)
       return Pathname.new(File.join(path, file_name)).file?
