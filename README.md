@@ -26,12 +26,6 @@ Next time a request to `http://localhost:4567/rest_api/user/32325` is made the c
 * Accepts `GET`, `POST`, `PUT` and `DELETE` requests.
 * HTTP headers, query parameters and request bodies are taken into account.
 
-## Roadmap
-
-This is a summary of the ideas which implementation is pending:
-
-* Whitelisting of endpoints to avoid caching.
-
 ## Installation
 
 ```
