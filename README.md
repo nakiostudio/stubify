@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://github.com/nakiostudio/xcov/blob/master/LICENSE)
 [![Gem](https://img.shields.io/gem/v/stubify.svg?style=flat)](http://rubygems.org/gems/stubify)
 
-**stubify** allows you to stub real environments without really doing nothing. It runs a [Sinatra](https://github.com/sinatra/sinatra)
+**stubify** allows you to stub real environments without really doing anything. It runs a [Sinatra](https://github.com/sinatra/sinatra)
 application locally and, given a host, it forwards all the calls received caching the real responses, that way, next time the local
 environment receives a request the cached response is returned.
 
@@ -30,7 +30,6 @@ Next time a request to `http://localhost:4567/rest_api/user/32325` is made the c
 
 This is a summary of the ideas which implementation is pending:
 
-* Configurable port.
 * Whitelisting of endpoints to avoid caching.
 
 ## Installation
@@ -43,6 +42,24 @@ sudo gem install stubify
 
 ```
 stubify server --host https://real-host.com --directory path_to_cached_response
+
+ACTIONS:
+
+    server [options]
+
+OPTIONS:
+
+  --host STRING
+      Host the requests will be redirected to. i.e. https://easy-peasy.io
+
+  --directory DIR
+      Path where fixtures will be stored. i.e. fixtures/
+
+  --port STRING
+      Port the local environment will listen to. Default is 4567
+
+  --verbose
+      Increases the amount of information logged
 ```
 
 ## Contributors

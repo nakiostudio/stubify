@@ -6,7 +6,8 @@ module Stubify
   class Server < Sinatra::Base
 
     set :app_file, __FILE__
-    set :run, Proc.new { true }
+    set :run, true
+    set :quiet, !Stubify.options.verbose
 
     if run?
       puts 'Launching Sinatra app...'
