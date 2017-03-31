@@ -43,22 +43,35 @@ ACTIONS:
 
 OPTIONS:
 
-  --host STRING
-      Host the requests will be redirected to. i.e. https://easy-peasy.io
+    --host STRING
+    Host the requests will be redirected to. i.e. https://easy-peasy.io
 
-  --directory DIR
-      Path where fixtures will be stored. i.e. fixtures/
+    --port STRING
+    Port the local environment will listen to. Default is 4567
 
-  --port STRING
-      Port the local environment will listen to. Default is 4567
+    --directory DIR
+    Path where fixtures will be stored. i.e. fixtures/
 
-  --verbose
-      Increases the amount of information logged
+    --whitelist DIR
+    Path to the .yml file with the whitelisted paths
+
+    --verbose
+    Increases the amount of information logged
 ```
 
-## Contributors
+### Whitelisting endpoints
 
-[![nakiostudio](https://avatars2.githubusercontent.com/u/1814571?v=3&s=50)](https://github.com/nakiostudio)
+**stubify** allows you to skip the caching of some endpoints, to do so, provide the file path to
+a `yaml` file with the url paths to exclude, i.e.:
+
+```yaml
+- /rest_api/oauth2/token/
+- /rest_api/account/profile/
+```
+
+## Author
+
+[Carlos Vidal](https://twitter.com/carlostify)
 
 ## License
 
