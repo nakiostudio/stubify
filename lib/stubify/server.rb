@@ -15,28 +15,31 @@ module Stubify
 
     at_exit { Server.run! if $!.nil? && Server.run? }
 
-    get // do
+    get '/*' do
+      Server.log("Processing request GET #{request}")
       response = Server.on_request(request)
       status response['status_code']
       return response[:body] unless response[:body].nil?
       return response['body'] unless response['body'].nil?
     end
 
-    post // do
+    post '/*' do
+      Server.log("Processing request POST #{request}")
+
       response = Server.on_request(request)
       status response['status_code']
       return response[:body] unless response[:body].nil?
       return response['body'] unless response['body'].nil?
     end
 
-    delete // do
+    delete '/*' do
       response = Server.on_request(request)
       status response['status_code']
       return response[:body] unless response[:body].nil?
       return response['body'] unless response['body'].nil?
     end
 
-    put // do
+    put '/*' do
       response = Server.on_request(request)
       status response['status_code']
       return response[:body] unless response[:body].nil?
@@ -59,11 +62,22 @@ module Stubify
       end
     end
 
+    def self.log(message)
+      if Stubify.options.verbose 
+      	puts message
+      end
+    end
+
     def self.forward(request, method, body)
+
+      Server.log("Forwarding...")
+      Server.log("Building request to forward...")
+
       # Build url
       uri = URI(Stubify.options.host)
       uri.path = request.path
       uri.query = request.query_string
+
 
       # Create new request
       new_req = nil
@@ -81,18 +95,34 @@ module Stubify
       end
 
       # Set headers
-      request.env.each do |key, value|
-        if key.include?('HTTP_')
-          new_key = key.dup
-          new_key.slice!('HTTP_')
-          new_req[new_key] = value unless ['HOST', 'VERSION'].include?(new_key)
-        end
-      end
+      Server.log("Processing headers:")
+      request.env.each { |key, value|
+        next unless value.is_a?(String)
 
-      # Perform request
-      response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
-        http.request(new_req)
-      end
+        new_key = key.dup
+
+        # Include all env variables supposed to be HTTP headers
+        if new_key.include?('HTTP_')
+           new_key.slice!('HTTP_')
+           # Ignore HOST and VERSION headers
+           next unless !['HOST', 'VERSION'].include?(new_key)
+           Server.log("#{new_key} : #{value}")
+           new_req[new_key] = value
+        end
+        # Include all env variables supposed to be CONTENT headers
+        if key.include?('CONTENT_')
+          # Convert underscore into dash
+          new_key = new_key.gsub('_', '-') unless !new_key.include?('_')
+          Server.log("#{new_key} : #{value}")
+          new_req[new_key] = value
+        end
+      }
+
+      Server.log("Performing request")
+      response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') {
+          |http| http.request(new_req)
+      }
+      Server.log("Done!")
 
       return response
     end
