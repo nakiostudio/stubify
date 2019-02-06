@@ -16,7 +16,7 @@ module Stubify
     at_exit { Server.run! if $!.nil? && Server.run? }
 
     get '/*' do
-      Server.log("Processing request GET #{request}")
+      Server.log("Processing request GET: #{request.url}")
       response = Server.on_request(request)
       status response['status_code']
       return response[:body] unless response[:body].nil?
@@ -24,7 +24,7 @@ module Stubify
     end
 
     post '/*' do
-      Server.log("Processing request POST #{request}")
+      Server.log("Processing request POST: #{request.url}")
 
       response = Server.on_request(request)
       status response['status_code']
@@ -33,7 +33,7 @@ module Stubify
     end
 
     delete '/*' do
-      Server.log("Processing request DELETE #{request}")
+      Server.log("Processing request DELETE: #{request.url}")
       response = Server.on_request(request)
       status response['status_code']
       return response[:body] unless response[:body].nil?
@@ -41,7 +41,7 @@ module Stubify
     end
 
     put '/*' do
-      Server.log("Processing request PUT #{request}")
+      Server.log("Processing request PUT: #{request.url}")
       response = Server.on_request(request)
       status response['status_code']
       return response[:body] unless response[:body].nil?
@@ -83,8 +83,6 @@ module Stubify
           new_key.slice!('HTTP_')
           # Ignore HOST and VERSION headers
           next unless !['HOST', 'VERSION'].include?(new_key)
-          Server.log("#{new_key} : #{value}")
-          # new_req[new_key] = value
           extracted[new_key] = value
         end
 
@@ -92,7 +90,6 @@ module Stubify
         if key.include?('CONTENT_')
           # Convert underscore into dash
           new_key = new_key.gsub('_', '-') unless !new_key.include?('_')
-          Server.log("#{new_key} : #{value}")
           extracted[new_key] = value
         end
       }
@@ -109,30 +106,37 @@ module Stubify
       uri.path = request.path
       uri.query = request.query_string
 
+      Server.log("URI: #{uri}")
 
       # Create new request
       new_req = nil
       if method == 'DELETE'
+        Server.log("METHOD: #{method}")
         new_req = Net::HTTP::Delete.new(uri)
         new_req.body = body
       elsif method == 'POST'
+        Server.log("METHOD: #{method}")
         new_req = Net::HTTP::Post.new(uri)
         new_req.body = body
       elsif method == 'PUT'
+        Server.log("METHOD: #{method}")
         new_req = Net::HTTP::Put.new(uri)
         new_req.body = body
       else
+        Server.log("METHOD: #{GET}")
         new_req = Net::HTTP::Get.new(uri)
       end
 
+
       # Set headers
-      Server.log("Processing headers:")
+      Server.log("Headers:")
 
       Server.extractHeaders(request).each { |key, value|
+        Server.log("     #{key} : #{value}")
         new_req[key] = value
       }
 
-      Server.log("Performing request")
+      Server.log("Performing request ... ")
       response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') {
           |http| http.request(new_req)
       }
