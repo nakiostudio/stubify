@@ -33,6 +33,7 @@ module Stubify
     end
 
     delete '/*' do
+      Server.log("Processing request DELETE #{request}")
       response = Server.on_request(request)
       status response['status_code']
       return response[:body] unless response[:body].nil?
@@ -40,6 +41,7 @@ module Stubify
     end
 
     put '/*' do
+      Server.log("Processing request PUT #{request}")
       response = Server.on_request(request)
       status response['status_code']
       return response[:body] unless response[:body].nil?
