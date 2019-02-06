@@ -68,6 +68,35 @@ module Stubify
       end
     end
 
+    def self.extractHeaders(request)
+      extracted = Hash.new(0)
+
+      request.env.each { |key, value|
+        next unless value.is_a?(String)
+
+        new_key = key.dup
+
+        # Include all env variables supposed to be HTTP headers
+        if new_key.include?('HTTP_')
+          new_key.slice!('HTTP_')
+          # Ignore HOST and VERSION headers
+          next unless !['HOST', 'VERSION'].include?(new_key)
+          Server.log("#{new_key} : #{value}")
+          # new_req[new_key] = value
+          extracted[new_key] = value
+        end
+
+        # Include all env variables supposed to be CONTENT headers
+        if key.include?('CONTENT_')
+          # Convert underscore into dash
+          new_key = new_key.gsub('_', '-') unless !new_key.include?('_')
+          Server.log("#{new_key} : #{value}")
+          extracted[new_key] = value
+        end
+      }
+      extracted
+    end
+
     def self.forward(request, method, body)
 
       Server.log("Forwarding...")
@@ -96,26 +125,9 @@ module Stubify
 
       # Set headers
       Server.log("Processing headers:")
-      request.env.each { |key, value|
-        next unless value.is_a?(String)
 
-        new_key = key.dup
-
-        # Include all env variables supposed to be HTTP headers
-        if new_key.include?('HTTP_')
-           new_key.slice!('HTTP_')
-           # Ignore HOST and VERSION headers
-           next unless !['HOST', 'VERSION'].include?(new_key)
-           Server.log("#{new_key} : #{value}")
-           new_req[new_key] = value
-        end
-        # Include all env variables supposed to be CONTENT headers
-        if key.include?('CONTENT_')
-          # Convert underscore into dash
-          new_key = new_key.gsub('_', '-') unless !new_key.include?('_')
-          Server.log("#{new_key} : #{value}")
-          new_req[new_key] = value
-        end
+      Server.extractHeaders(request).each { |key, value|
+        new_req[key] = value
       }
 
       Server.log("Performing request")
@@ -129,6 +141,8 @@ module Stubify
 
   end
 end
+
+
 
 extend Sinatra::Delegator
 
